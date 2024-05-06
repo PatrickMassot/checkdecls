@@ -10,8 +10,10 @@ def main (args : List String) : IO UInt32 := do
     println! "Could not find declaration list {filename}."
     return 1
   let (elanInstall?, leanInstall?, lakeInstall?) ← findInstall?
-  let config ← MonadError.runEIO <| mkLoadConfig.{0} { elanInstall?, leanInstall?, lakeInstall? }
-  let ws ← MonadError.runEIO <| (loadWorkspace config).run (.eio .normal)
+  let config ← MonadError.runEIO <| mkLoadConfig { elanInstall?, leanInstall?, lakeInstall? }
+  let (ws?, log) ← (loadWorkspace config).captureLog
+  log.replay (logger := .stderr)
+  let some ws := ws? | return 1
   let imports := ws.root.leanLibs.concatMap (·.config.roots.map fun module => { module })
   let env ← Lean.importModules imports {}
   let mut ok := true
