@@ -11,7 +11,7 @@ def main (args : List String) : IO UInt32 := do
     return 1
   let (elanInstall?, leanInstall?, lakeInstall?) ← findInstall?
   let config ← MonadError.runEIO <| mkLoadConfig { elanInstall?, leanInstall?, lakeInstall? }
-  let (ws?, log) ← (loadWorkspace config).captureLog
+  let (ws?, log) ← (loadWorkspace config).run?
   log.replay (logger := .stderr)
   let some ws := ws? | return 1
   let imports := ws.root.leanLibs.concatMap (·.config.roots.map fun module => { module })
