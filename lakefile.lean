@@ -9,4 +9,5 @@ package «checkdecls» {
 lean_exe «checkdecls» {
   root := `Main
   supportInterpreter := true
+  weakLinkArgs := #["-lLake"]
 }
