@@ -14,7 +14,7 @@ def main (args : List String) : IO UInt32 := do
   let (ws?, log) ← (loadWorkspace config).run?
   log.replay (logger := .stderr)
   let some ws := ws? | return 1
-  let imports := ws.root.leanLibs.concatMap (·.config.roots.map fun module => { module })
+  let imports := ws.root.leanLibs.flatMap (·.config.roots.map fun module => { module })
   let env ← Lean.importModules imports {}
   let mut ok := true
   for line in ← IO.FS.lines filename do
