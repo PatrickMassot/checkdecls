@@ -1,7 +1,7 @@
 import Lake.CLI.Main
 open Lake Lean
 
-def main (args : List String) : IO UInt32 := do
+unsafe def main (args : List String) : IO UInt32 := do
   unless args.length == 1 do
     println! "This command takes exactly one argument: the path to a file containing a list of declarations to check."
     return 1
@@ -15,6 +15,8 @@ def main (args : List String) : IO UInt32 := do
   log.replay (logger := .stderr)
   let some ws := ws? | return 1
   let imports := ws.root.leanLibs.flatMap (·.config.roots.map fun module => { module })
+  -- see comments in https://github.com/leanprover/lean4/pull/6325
+  enableInitializersExecution
   let env ← Lean.importModules imports {}
   let mut ok := true
   for line in ← IO.FS.lines filename do
